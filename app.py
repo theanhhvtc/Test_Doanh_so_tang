@@ -108,12 +108,12 @@ st.markdown(f"""
 
 # --- CHÈN ẢNH CV ---
 st.markdown(f"""
-<img id="cv-image" src="{cv_img_url}" title="Liên hệ: The Anh">
+<img id="cv-image" src="{cv_img_url}" title="Liên hệ: 091.2468.000">
 """, unsafe_allow_html=True)
 
 # --- TIÊU ĐỀ ---
 st.title("💊 Tool Tính Doanh Số Dược Phẩm")
-st.caption("Công cụ hỗ trợ ra quyết định kinh doanh - Developed by The Anh")
+st.caption("Công cụ hỗ trợ ra quyết định kinh doanh - Developed by Thế Anh Chu Lê")
 
 # --- SIDEBAR ---
 with st.sidebar:
@@ -253,7 +253,7 @@ st.altair_chart(c)
 # --- FOOTER BẢN QUYỀN ---
 st.markdown("""
 <div class="footer">
-    <p>© 2025 Developed by <b>The Anh</b>. All rights reserved.<br>
+    <p>© 2025 Developed by <b>Thế Anh Chu Lê</b>. All rights reserved.<br>
     <i>Dữ liệu chỉ mang tính chất mô phỏng nội bộ.</i></p>
 </div>
 """, unsafe_allow_html=True)
