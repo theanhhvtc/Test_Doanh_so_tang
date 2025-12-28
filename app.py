@@ -65,6 +65,7 @@ st.markdown(f"""
     }}
     
     .big-number {{ font-size: 24px; font-weight: bold; color: #2d3436; }}
+    .pct-text {{ font-size: 18px; color: #0984e3; font-weight: normal; margin-left: 8px; }}
     
     .footer {{
         position: fixed;
@@ -112,13 +113,12 @@ st.markdown(f"""
 
 # --- TIÊU ĐỀ ---
 st.title("💊 Tool Tính Doanh Số Dược Phẩm")
-st.caption("Công cụ hỗ trợ ra quyết định kinh doanh - Developed by Thế Anh Chu Lê")
+st.caption("Công cụ hỗ trợ ra quyết định kinh doanh - Developed by The Anh")
 
 # --- SIDEBAR ---
 with st.sidebar:
     st.header("1. Thông số Cơ bản")
-    # FIX WARNING: Thêm .0 vào value và step để biến thành số thực (float)
-    # Bỏ dòng hiển thị caption thừa
+    # Giữ nguyên .0 để tránh Warning
     price = st.number_input("Giá bán (VNĐ)", value=120000.0, step=1000.0, format="%.0f")
     base_cogs = st.number_input("Giá vốn (VNĐ)", value=30000.0, step=1000.0, format="%.0f")
     
@@ -140,7 +140,6 @@ with col1:
     # INPUT DOANH THU CŨ
     st.markdown('<p style="color: #d63031; font-size: 24px; font-weight: bold; margin-bottom: 5px;">Doanh thu hiện tại (VNĐ)</p>', unsafe_allow_html=True)
     
-    # FIX WARNING: value=550000000.0 (thêm .0)
     current_rev = st.number_input(
         "Label An", 
         value=550000000.0, 
@@ -148,7 +147,7 @@ with col1:
         label_visibility="collapsed",
         format="%.0f"
     )
-    # Giữ lại dòng review thông minh ở đây (theo yêu cầu)
+    # Review hiển thị số
     st.markdown(f"👉 Hiển thị: <span class='money-text'>{current_rev:,.0f} VNĐ</span>", unsafe_allow_html=True)
     
     st.markdown("---") 
@@ -166,10 +165,16 @@ with col1:
     opex_amount_1 = current_rev * total_opex_pct
     target_profit = current_rev - cogs_amount_1 - opex_amount_1
     
+    # --- MỚI: Tính % Lợi nhuận ---
+    profit_margin_1 = (target_profit / current_rev) * 100 if current_rev > 0 else 0
+    
     st.markdown(f"""
     <div class="target-box">
         <p>Lợi nhuận hiện tại:</p>
-        <p class="big-number">{target_profit:,.0f} VNĐ</p>
+        <p class="big-number">
+            {target_profit:,.0f} VNĐ
+            <span class="pct-text">({profit_margin_1:.1f}%)</span>
+        </p>
     </div>
     """, unsafe_allow_html=True)
     st.caption(f"Giá vốn 1 sp = {base_cogs:,.0f} + {added_cost_1:,.0f} (KM)")
@@ -248,7 +253,7 @@ st.altair_chart(c)
 # --- FOOTER BẢN QUYỀN ---
 st.markdown("""
 <div class="footer">
-    <p>© 2025 Developed by <b>Thế Anh Chu Lê</b>. All rights reserved.<br>
+    <p>© 2025 Developed by <b>The Anh</b>. All rights reserved.<br>
     <i>Dữ liệu chỉ mang tính chất mô phỏng nội bộ.</i></p>
 </div>
 """, unsafe_allow_html=True)
