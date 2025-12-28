@@ -298,9 +298,7 @@ if not df_sim.empty:
     st.altair_chart(chart_sensitivity, use_container_width=True)
 
 st.info("""
-💡 **Góc nhìn Quản trị:** Nhìn vào biểu đồ, bạn sẽ thấy khi Giá vốn tiến sát đến mức **Giá bán - Chi phí vận hành**, đường biểu đồ sẽ **dốc đứng lên trời**. 
-Điều này nghĩa là: Lúc đó dù có bán gấp 10, gấp 20 lần doanh số cũng không đủ bù chi phí.
--> Đây là công cụ giúp Sales biết đâu là "điểm dừng" của khuyến mại.
+💡 **Mô tả:** Nhìn vào biểu đồ, Sales biết đâu là "điểm dừng" của khuyến mại.
 """)
 
 # --- FOOTER BẢN QUYỀN ---
