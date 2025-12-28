@@ -5,8 +5,12 @@ import altair as alt
 st.set_page_config(page_title="The Anh - Sales Tool", page_icon="💊", layout="wide")
 
 # --- PHẦN 1: TRANG TRÍ GIAO DIỆN (CSS) ---
-# Link ảnh nền
+# 1. Link ảnh nền (Background)
 bg_img_url = "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+
+# 2. Link ảnh CV (Avatar)
+# HÃY DÁN LINK ẢNH RAW TỪ GITHUB CỦA BẠN VÀO DÒNG DƯỚI ĐÂY:
+cv_img_url = "https://raw.githubusercontent.com/theanhhvtc/Sales_Strategy_Tool/main/cv_img.jpg" 
 
 st.markdown(f"""
 <style>
@@ -18,7 +22,7 @@ st.markdown(f"""
         background-repeat: no-repeat;
     }}
     
-    /* Làm mờ nền một chút để dễ đọc chữ hơn */
+    /* Làm mờ nền */
     .stApp::before {{
         content: "";
         position: absolute;
@@ -26,11 +30,11 @@ st.markdown(f"""
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(255, 255, 255, 0.85); /* Lớp phủ trắng mờ 85% */
+        background-color: rgba(255, 255, 255, 0.85);
         z-index: -1;
     }}
 
-    /* 2. Trang trí các ô kết quả */
+    /* 2. CSS cho các hộp số liệu */
     .target-box {{ background-color: #d1eaed; padding: 15px; border-radius: 10px; border-left: 5px solid #00cec9; }}
     .result-box {{ background-color: #ffeaa7; padding: 15px; border-radius: 10px; border-left: 5px solid #fdcb6e; }}
     .big-number {{ font-size: 24px; font-weight: bold; color: #2d3436; }}
@@ -50,29 +54,30 @@ st.markdown(f"""
         z-index: 100;
     }}
     
-    /* 4. Ảnh CV nhỏ ở góc */
-    #cv-image {
+    /* 4. Ảnh CV nhỏ ở góc phải dưới (ĐÃ SỬA LỖI NGOẶC KÉP) */
+    #cv-image {{
         position: fixed;
-        bottom: 10px;
-        right: 10px;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
+        bottom: 50px; /* Cách đáy 50px để không che footer */
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%; /* Bo tròn thành hình tròn */
         border: 2px solid #fff;
-        box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
-        z-index: 101; /* Nằm trên footer */
-    }
+        box-shadow: 0px 4px 6px rgba(0,0,0,0.3);
+        z-index: 101;
+        transition: transform 0.3s;
+        object-fit: cover; /* Cắt ảnh vừa khung tròn */
+    }}
+    
+    #cv-image:hover {{
+        transform: scale(1.1); /* Phóng to nhẹ khi di chuột vào */
+    }}
 </style>
 """, unsafe_allow_html=True)
 
-# --- THÊM ẢNH CV VÀO GÓC ---
-# Bạn cần tải ảnh lên GitHub và lấy link raw, hoặc dùng một dịch vụ lưu ảnh khác
-# Ví dụ: "https://raw.githubusercontent.com/theanhhvtc/Test_Doanh_so_tang/main/image_3.png"
-# Nếu bạn chưa có link ảnh, hãy thay thế đường dẫn bên dưới bằng link ảnh của bạn.
-cv_img_url = "https://i.imgur.com/your_image_placeholder.png" # Thay bằng link ảnh thật của bạn
-
+# --- CHÈN ẢNH CV VÀO HTML ---
 st.markdown(f"""
-<img id="cv-image" src="{cv_img_url}" title="Liên hệ The Anh">
+<img id="cv-image" src="{cv_img_url}" title="Liên hệ: The Anh">
 """, unsafe_allow_html=True)
 
 # --- TIÊU ĐỀ ---
