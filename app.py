@@ -232,24 +232,6 @@ with col2:
         
         st.latex(r"DoanhThu = \frac{\text{Lợi Nhuận Cũ}}{\text{Biên Lãi Mới (" + f"{net_margin_pct_2*100:.1f}\%" + r")}}")
 
-# --- BIỂU ĐỒ NGANG ---
-st.divider()
-chart_df = pd.DataFrame({
-    'Loại': ['Doanh Thu', 'Doanh Thu', 'Giá Vốn/SP', 'Giá Vốn/SP'],
-    'Kịch bản': ['1. Chỉ KM Cũ', '2. Cộng thêm KM Mới', '1. Chỉ KM Cũ', '2. Cộng thêm KM Mới'],
-    'Giá trị': [current_rev, required_rev if net_margin_pct_2 > 0 else 0, total_cogs_unit_1, total_cogs_unit_2]
-})
-
-c = alt.Chart(chart_df).mark_bar().encode(
-    y=alt.Y('Kịch bản', axis=None),
-    x=alt.X('Giá trị', title='Giá trị (VNĐ)'),
-    color=alt.Color('Kịch bản', scale=alt.Scale(range=['#7f8c8d', '#e74c3c'])),
-    column=alt.Column('Loại', header=alt.Header(titleOrient="bottom")),
-    tooltip=['Loại', 'Kịch bản', alt.Tooltip('Giá trị', format=',.0f')]
-).properties(width=300)
-
-st.altair_chart(c)
-
 # =========================================================
 # PHẦN MỚI: BIỂU ĐỒ PHÂN TÍCH ĐỘ NHẠY (SENSITIVITY ANALYSIS)
 # =========================================================
