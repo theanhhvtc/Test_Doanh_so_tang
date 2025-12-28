@@ -232,28 +232,69 @@ with col2:
         
         st.latex(r"DoanhThu = \frac{\text{Lợi Nhuận Cũ}}{\text{Biên Lãi Mới (" + f"{net_margin_pct_2*100:.1f}\%" + r")}}")
 
-# --- BIỂU ĐỒ NGANG ---
-st.divider()
-chart_df = pd.DataFrame({
-    'Loại': ['Doanh Thu', 'Doanh Thu', 'Giá Vốn/SP', 'Giá Vốn/SP'],
-    'Kịch bản': ['1. Chỉ KM Cũ', '2. Cộng thêm KM Mới', '1. Chỉ KM Cũ', '2. Cộng thêm KM Mới'],
-    'Giá trị': [current_rev, required_rev if net_margin_pct_2 > 0 else 0, total_cogs_unit_1, total_cogs_unit_2]
-})
+# --- BIỂU ĐỒ ---
+st.markdown("---")
+st.subheader("📈 Phân tích Độ nhạy: Giá vốn vs Áp lực Doanh thu")
+st.caption("Biểu đồ này trả lời câu hỏi: Nếu tiếp tục tăng khuyến mại (tăng giá vốn), doanh thu phải gồng gánh bao nhiêu?")
 
-c = alt.Chart(chart_df).mark_bar().encode(
-    y=alt.Y('Kịch bản', axis=None),
-    x=alt.X('Giá trị', title='Giá trị (VNĐ)'),
-    color=alt.Color('Kịch bản', scale=alt.Scale(range=['#7f8c8d', '#e74c3c'])),
-    column=alt.Column('Loại', header=alt.Header(titleOrient="bottom")),
-    tooltip=['Loại', 'Kịch bản', alt.Tooltip('Giá trị', format=',.0f')]
-).properties(width=300)
+# 1. Tạo dữ liệu giả lập (Simulation)
+# Giả sử giá vốn tăng thêm từ 0đ đến 50,000đ (do các loại KM khác nhau)
+sim_data = []
+current_added_cost = cost_km1 + cost_km2 # Mức tăng hiện tại của bạn
 
-st.altair_chart(c)
+for extra_cost in range(0, 55000, 2000): # Bước nhảy 2000đ
+    # Giá vốn giả định
+    sim_total_cogs = base_cogs + extra_cost
+    
+    # Biên lãi giả định
+    sim_cogs_pct = sim_total_cogs / price
+    sim_net_margin = 1 - (sim_cogs_pct + total_opex_pct)
+    
+    # Chỉ tính nếu còn lãi dương
+    if sim_net_margin > 0.01: # Lãi > 1% mới tính
+        sim_req_rev = target_profit / sim_net_margin
+        
+        # Đánh dấu điểm hiện tại của bạn
+        is_current = "Dự báo"
+        # Nếu mức giá vốn này gần bằng mức hiện tại của bạn (sai số 1000đ)
+        if abs(extra_cost - current_added_cost) < 1000: 
+             is_current = "Hiện tại"
 
-# --- FOOTER BẢN QUYỀN ---
-st.markdown("""
-<div class="footer">
-    <p>© 2025 Developed by <b>Thế Anh Chu Lê</b>. All rights reserved.<br>
-    <i>Dữ liệu chỉ mang tính chất mô phỏng nội bộ.</i></p>
-</div>
-""", unsafe_allow_html=True)
+        sim_data.append({
+            "Giá vốn tăng thêm": extra_cost,
+            "Tổng giá vốn/sp": sim_total_cogs,
+            "Doanh thu cần đạt": sim_req_rev,
+            "Loại": is_current
+        })
+
+df_sim = pd.DataFrame(sim_data)
+
+# 2. Vẽ biểu đồ đường (Line Chart)
+# Đường biểu diễn xu hướng
+line = alt.Chart(df_sim).mark_line(strokeWidth=3).encode(
+    x=alt.X('Tổng giá vốn/sp', title='Tổng giá vốn (VNĐ/sp)'),
+    y=alt.Y('Doanh thu cần đạt', title='Doanh thu mục tiêu (VNĐ)'),
+    color=alt.value("#bdc3c7") # Màu xám cho đường
+)
+
+# Điểm chấm đỏ thể hiện vị trí hiện tại của bạn
+points = alt.Chart(df_sim).mark_circle(size=100).encode(
+    x='Tổng giá vốn/sp',
+    y='Doanh thu cần đạt',
+    color=alt.Color('Loại', scale=alt.Scale(domain=['Dự báo', 'Hiện tại'], range=['#bdc3c7', '#d63031'])),
+    tooltip=[
+        alt.Tooltip('Tổng giá vốn/sp', format=',.0f'),
+        alt.Tooltip('Doanh thu cần đạt', format=',.0f'),
+        'Loại'
+    ]
+)
+
+# Kết hợp đường và điểm
+chart_sensitivity = (line + points).properties(
+    height=400,
+    title="Đường cong áp lực: Giá vốn càng cao, Doanh thu càng dốc đứng"
+).interactive()
+
+st.altair_chart(chart_sensitivity, use_container_width=True)
+
+st.info("""
