@@ -3,7 +3,7 @@ import pandas as pd
 import altair as alt
 import time
 
-st.set_page_config(page_title="The Anh - Sales Tool", page_icon="💊", layout="wide")
+st.set_page_config(page_title="Thế Anh Chu Lê - Sales Tool", page_icon="💊", layout="wide")
 
 # --- PHẦN 1: HỆ THỐNG ĐĂNG NHẬP (LOGIN SYSTEM) ---
 def check_password():
@@ -108,7 +108,7 @@ st.markdown(f"""
 
 # --- CHÈN ẢNH CV ---
 st.markdown(f"""
-<img id="cv-image" src="{cv_img_url}" title="Liên hệ: 091.2468.000">
+<img id="cv-image" src="{cv_img_url}" title="Liên hệ: Thế Anh Chu Lê">
 """, unsafe_allow_html=True)
 
 # --- TIÊU ĐỀ ---
@@ -165,7 +165,7 @@ with col1:
     opex_amount_1 = current_rev * total_opex_pct
     target_profit = current_rev - cogs_amount_1 - opex_amount_1
     
-    # --- MỚI: Tính % Lợi nhuận ---
+    # Tính % Lợi nhuận
     profit_margin_1 = (target_profit / current_rev) * 100 if current_rev > 0 else 0
     
     st.markdown(f"""
@@ -232,16 +232,36 @@ with col2:
         
         st.latex(r"DoanhThu = \frac{\text{Lợi Nhuận Cũ}}{\text{Biên Lãi Mới (" + f"{net_margin_pct_2*100:.1f}\%" + r")}}")
 
-# --- BIỂU ĐỒ ---
+# --- BIỂU ĐỒ NGANG ---
+st.divider()
+chart_df = pd.DataFrame({
+    'Loại': ['Doanh Thu', 'Doanh Thu', 'Giá Vốn/SP', 'Giá Vốn/SP'],
+    'Kịch bản': ['1. Chỉ KM Cũ', '2. Cộng thêm KM Mới', '1. Chỉ KM Cũ', '2. Cộng thêm KM Mới'],
+    'Giá trị': [current_rev, required_rev if net_margin_pct_2 > 0 else 0, total_cogs_unit_1, total_cogs_unit_2]
+})
+
+c = alt.Chart(chart_df).mark_bar().encode(
+    y=alt.Y('Kịch bản', axis=None),
+    x=alt.X('Giá trị', title='Giá trị (VNĐ)'),
+    color=alt.Color('Kịch bản', scale=alt.Scale(range=['#7f8c8d', '#e74c3c'])),
+    column=alt.Column('Loại', header=alt.Header(titleOrient="bottom")),
+    tooltip=['Loại', 'Kịch bản', alt.Tooltip('Giá trị', format=',.0f')]
+).properties(width=300)
+
+st.altair_chart(c)
+
+# =========================================================
+# PHẦN MỚI: BIỂU ĐỒ PHÂN TÍCH ĐỘ NHẠY (SENSITIVITY ANALYSIS)
+# =========================================================
 st.markdown("---")
 st.subheader("📈 Phân tích Độ nhạy: Giá vốn vs Áp lực Doanh thu")
 st.caption("Biểu đồ này trả lời câu hỏi: Nếu tiếp tục tăng khuyến mại (tăng giá vốn), doanh thu phải gồng gánh bao nhiêu?")
 
 # 1. Tạo dữ liệu giả lập (Simulation)
-# Giả sử giá vốn tăng thêm từ 0đ đến 50,000đ (do các loại KM khác nhau)
-sim_data = []
-current_added_cost = cost_km1 + cost_km2 # Mức tăng hiện tại của bạn
+# Mức tăng giá vốn hiện tại do KM
+current_added_cost = cost_km1 + cost_km2 
 
+sim_data = []
 for extra_cost in range(0, 55000, 2000): # Bước nhảy 2000đ
     # Giá vốn giả định
     sim_total_cogs = base_cogs + extra_cost
@@ -269,32 +289,42 @@ for extra_cost in range(0, 55000, 2000): # Bước nhảy 2000đ
 
 df_sim = pd.DataFrame(sim_data)
 
-# 2. Vẽ biểu đồ đường (Line Chart)
-# Đường biểu diễn xu hướng
-line = alt.Chart(df_sim).mark_line(strokeWidth=3).encode(
-    x=alt.X('Tổng giá vốn/sp', title='Tổng giá vốn (VNĐ/sp)'),
-    y=alt.Y('Doanh thu cần đạt', title='Doanh thu mục tiêu (VNĐ)'),
-    color=alt.value("#bdc3c7") # Màu xám cho đường
-)
+# 2. Vẽ biểu đồ đường
+if not df_sim.empty:
+    line = alt.Chart(df_sim).mark_line(strokeWidth=3).encode(
+        x=alt.X('Tổng giá vốn/sp', title='Tổng giá vốn (VNĐ/sp)'),
+        y=alt.Y('Doanh thu cần đạt', title='Doanh thu mục tiêu (VNĐ)'),
+        color=alt.value("#bdc3c7")
+    )
 
-# Điểm chấm đỏ thể hiện vị trí hiện tại của bạn
-points = alt.Chart(df_sim).mark_circle(size=100).encode(
-    x='Tổng giá vốn/sp',
-    y='Doanh thu cần đạt',
-    color=alt.Color('Loại', scale=alt.Scale(domain=['Dự báo', 'Hiện tại'], range=['#bdc3c7', '#d63031'])),
-    tooltip=[
-        alt.Tooltip('Tổng giá vốn/sp', format=',.0f'),
-        alt.Tooltip('Doanh thu cần đạt', format=',.0f'),
-        'Loại'
-    ]
-)
+    points = alt.Chart(df_sim).mark_circle(size=100).encode(
+        x='Tổng giá vốn/sp',
+        y='Doanh thu cần đạt',
+        color=alt.Color('Loại', scale=alt.Scale(domain=['Dự báo', 'Hiện tại'], range=['#bdc3c7', '#d63031'])),
+        tooltip=[
+            alt.Tooltip('Tổng giá vốn/sp', format=',.0f'),
+            alt.Tooltip('Doanh thu cần đạt', format=',.0f'),
+            'Loại'
+        ]
+    )
 
-# Kết hợp đường và điểm
-chart_sensitivity = (line + points).properties(
-    height=400,
-    title="Đường cong áp lực: Giá vốn càng cao, Doanh thu càng dốc đứng"
-).interactive()
+    chart_sensitivity = (line + points).properties(
+        height=400,
+        title="Đường cong áp lực: Giá vốn càng cao, Doanh thu càng dốc đứng"
+    ).interactive()
 
-st.altair_chart(chart_sensitivity, use_container_width=True)
+    st.altair_chart(chart_sensitivity, use_container_width=True)
 
 st.info("""
+💡 **Góc nhìn Quản trị:** Nhìn vào biểu đồ, bạn sẽ thấy khi Giá vốn tiến sát đến mức **Giá bán - Chi phí vận hành**, đường biểu đồ sẽ **dốc đứng lên trời**. 
+Điều này nghĩa là: Lúc đó dù có bán gấp 10, gấp 20 lần doanh số cũng không đủ bù chi phí.
+-> Đây là công cụ giúp Sales biết đâu là "điểm dừng" của khuyến mại.
+""")
+
+# --- FOOTER BẢN QUYỀN ---
+st.markdown("""
+<div class="footer">
+    <p>© 2025 Developed by <b>Thế Anh Chu Lê</b>. All rights reserved.<br>
+    <i>Dữ liệu chỉ mang tính chất mô phỏng nội bộ.</i></p>
+</div>
+""", unsafe_allow_html=True)
