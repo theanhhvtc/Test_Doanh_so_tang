@@ -237,7 +237,7 @@ with col2:
 # =========================================================
 st.markdown("---")
 st.subheader("📈 Phân tích Độ nhạy: Giá vốn vs Áp lực Doanh thu")
-st.caption("Biểu đồ này trả lời câu hỏi: Nếu tiếp tục tăng khuyến mại (tăng giá vốn), doanh thu phải gồng gánh bao nhiêu?")
+st.caption("Biểu đồ này trả lời câu hỏi: Nếu tiếp tục tăng khuyến mại (tăng giá vốn), doanh thu phải đạt bao nhiêu?")
 
 # 1. Tạo dữ liệu giả lập (Simulation)
 # Mức tăng giá vốn hiện tại do KM
@@ -291,15 +291,10 @@ if not df_sim.empty:
     )
 
     chart_sensitivity = (line + points).properties(
-        height=400,
-        title="Đường cong áp lực: Giá vốn càng cao, Doanh thu càng dốc đứng"
+        height=400
     ).interactive()
 
     st.altair_chart(chart_sensitivity, use_container_width=True)
-
-st.info("""
-💡 **Mô tả:** Nhìn vào biểu đồ, Sales biết đâu là "điểm dừng" của khuyến mại.
-""")
 
 # --- FOOTER BẢN QUYỀN ---
 st.markdown("""
