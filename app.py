@@ -53,7 +53,20 @@ cv_img_url = "https://raw.githubusercontent.com/theanhhvtc/Sales_Strategy_Tool/m
 st.markdown(f"""
 <style>
     .target-box {{ background-color: #d1eaed; padding: 15px; border-radius: 10px; border-left: 5px solid #00cec9; }}
-    .result-box {{ background-color: #ffeaa7; padding: 15px; border-radius: 10px; border-left: 5px solid #fdcb6e; }}
+    
+    /* Box kết quả chính (Sẽ nằm ở đầu) */
+    .result-box-top {{ 
+        background-color: #ffeaa7; 
+        padding: 10px 15px; 
+        border-radius: 10px; 
+        border-left: 5px solid #fdcb6e; 
+        margin-top: 10px; /* Căn chỉnh cho khớp với ô nhập bên trái */
+        min-height: 88px; /* Giữ chiều cao cố định để không bị giật layout */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }}
+    
     .big-number {{ font-size: 24px; font-weight: bold; color: #2d3436; }}
     
     .footer {{
@@ -88,23 +101,27 @@ st.markdown(f"""
     #cv-image:hover {{
         transform: scale(1.1);
     }}
+    
+    /* CSS MỚI CHO DÒNG REVIEW TIỀN */
+    .money-text {{ color: #2ecc71; font-weight: bold; font-size: 16px; }}
+    .diff-text {{ font-size: 14px; color: #636e72; }}
 </style>
 """, unsafe_allow_html=True)
 
 # --- CHÈN ẢNH CV ---
 st.markdown(f"""
-<img id="cv-image" src="{cv_img_url}" title="Liên hệ: The Anh">
+<img id="cv-image" src="{cv_img_url}" title="Liên hệ: Thế Anh Chu Lê">
 """, unsafe_allow_html=True)
 
 # --- TIÊU ĐỀ ---
 st.title("💊 Tool Tính Doanh Số Dược Phẩm")
-st.caption("Công cụ hỗ trợ ra quyết định kinh doanh - Developed by The Anh")
+st.caption("Công cụ hỗ trợ ra quyết định kinh doanh - Developed by Thế Anh Chu Lê")
 
 # --- SIDEBAR ---
 with st.sidebar:
     st.header("1. Thông số Cơ bản")
-    price = st.number_input("Giá bán (VNĐ)", value=120000, step=1000)
-    base_cogs = st.number_input("Giá vốn (VNĐ)", value=30000, step=1000)
+    price = st.number_input("Giá bán (VNĐ)", value=120000, step=1000, format="%.0f")
+    base_cogs = st.number_input("Giá vốn (VNĐ)", value=30000, step=1000, format="%.0f")
     
     st.header("2. Chi phí Vận hành (% Doanh thu)")
     pct_mgmt = st.number_input("% Chi phí quản lý", value=10.0)
@@ -120,15 +137,29 @@ col1, col2 = st.columns([1, 1.1])
 # === KỊCH BẢN 1 ===
 with col1:
     st.subheader("1️⃣ Kịch bản hiện tại")
-    st.markdown('<p style="color: #d63031; font-size: 24px; font-weight: bold; margin-bottom: 5px;">Doanh thu hiện tại (VNĐ)</p>', unsafe_allow_html=True)
-    current_rev = st.number_input("Label An", value=550000000, step=10000000, label_visibility="collapsed")
     
+    # INPUT DOANH THU CŨ
+    st.markdown('<p style="color: #d63031; font-size: 24px; font-weight: bold; margin-bottom: 5px;">Doanh thu hiện tại (VNĐ)</p>', unsafe_allow_html=True)
+    
+    current_rev = st.number_input(
+        "Label An", 
+        value=550000000, 
+        step=10000000, 
+        label_visibility="collapsed",
+        format="%.0f"
+    )
+    # Review số tiền
+    st.markdown(f"👉 Hiển thị: <span class='money-text'>{current_rev:,.0f} VNĐ</span>", unsafe_allow_html=True)
+    
+    # KHOẢNG CÁCH CHO ĐẸP
+    st.markdown("---") 
+
     st.markdown("<b>Khuyến mại hiện tại (KM1):</b>", unsafe_allow_html=True)
     c1a, c1b = st.columns(2)
     with c1a: buy_1 = st.number_input("Mua (SL)", value=3, key="b1")
     with c1b: get_1 = st.number_input("Tặng (SL)", value=1, key="g1")
 
-    # Tính toán
+    # Tính toán KM1
     added_cost_1 = (get_1 * base_cogs) / buy_1
     total_cogs_unit_1 = base_cogs + added_cost_1
     
@@ -147,13 +178,29 @@ with col1:
 # === KỊCH BẢN 2 ===
 with col2:
     st.subheader("2️⃣ Kịch bản Mới (KM thêm)")
+    
+    st.markdown('<p style="color: #d63031; font-size: 24px; font-weight: bold; margin-bottom: 5px;">Doanh thu CẦN ĐẠT (VNĐ)</p>', unsafe_allow_html=True)
+    
+    # [QUAN TRỌNG] TẠO MỘT CÁI HỘP RỖNG (PLACEHOLDER) Ở ĐÂY ĐỂ GIỮ CHỖ
+    # Kết quả tính toán sẽ được "bắn" ngược lên đây sau khi code chạy xong bên dưới
+    result_placeholder = st.empty()
+    
+    # Hiển thị tạm một cái box trống cho cân layout
+    result_placeholder.markdown("""
+    <div class="result-box-top">
+        <p style="color: #636e72;">Đang tính toán...</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # KHOẢNG CÁCH CHO ĐẸP
     st.markdown("---")
+    
     st.markdown("<b>Khuyến mại thêm (KM2):</b>", unsafe_allow_html=True)
     c2a, c2b = st.columns(2)
     with c2a: buy_2 = st.number_input("Mua (SL) Thêm", value=20, key="b2")
     with c2b: get_2 = st.number_input("Tặng (SL) Thêm", value=3, key="g2")
     
-    # Tính toán
+    # --- TÍNH TOÁN LOGIC KỊCH BẢN 2 ---
     cost_km1 = (get_1 * base_cogs) / buy_1  
     cost_km2 = (get_2 * base_cogs) / buy_2  
     total_cogs_unit_2 = base_cogs + cost_km1 + cost_km2
@@ -164,21 +211,26 @@ with col2:
     st.write("🔻 **Giá vốn mới/sp:**")
     st.markdown(f"{base_cogs:,.0f} (Gốc) + {cost_km1:,.0f} (KM {buy_1} Tặng {get_1}) + {cost_km2:,.0f} (KM {buy_2} Tặng {get_2}) = **{total_cogs_unit_2:,.0f} VNĐ/sp**")
 
+    # TÍNH TOÁN FINAL
     required_rev = 0 
     if net_margin_pct_2 <= 0:
-        st.error(f"⛔ QUÁ TẢI! Tổng giá vốn lên tới {total_cogs_unit_2:,.0f}đ/sp.")
+        # Trường hợp Lỗ -> Bắn cảnh báo lên ô trên cùng
+        result_placeholder.error("⛔ LỖ VỐN! Không thể tính doanh thu mục tiêu.")
+        st.error(f"⛔ QUÁ TẢI! Tổng giá vốn ({total_cogs_unit_2:,.0f}đ) + Vận hành > Giá bán.")
     else:
         required_rev = target_profit / net_margin_pct_2
         diff_rev = required_rev - current_rev
         pct_increase = (diff_rev / current_rev) * 100
         
-        st.markdown(f"""
-        <div class="result-box">
-            <p>Doanh thu mới CẦN ĐẠT:</p>
-            <p class="big-number" style="color:#d63031">{required_rev:,.0f} VNĐ</p>
-            <p>Cần tăng: <b>{diff_rev:+,.0f} VNĐ</b> ({pct_increase:+.1f}%)</p>
+        # [QUAN TRỌNG] BẮN KẾT QUẢ NGƯỢC LÊN Ô PLACEHOLDER Ở ĐẦU TRANG
+        result_placeholder.markdown(f"""
+        <div class="result-box-top">
+            <span class="big-number" style="color:#d63031">{required_rev:,.0f} VNĐ</span>
+            <span class="diff-text">Cần tăng: <b>{diff_rev:+,.0f} VNĐ</b> ({pct_increase:+.1f}%)</span>
         </div>
         """, unsafe_allow_html=True)
+        
+        # Hiển thị công thức ở dưới (giữ nguyên để giải thích)
         st.latex(r"DoanhThu = \frac{\text{Lợi Nhuận Cũ}}{\text{Biên Lãi Mới (" + f"{net_margin_pct_2*100:.1f}\%" + r")}}")
 
 # --- BIỂU ĐỒ NGANG ---
